@@ -268,7 +268,7 @@ class OAnQuan:
                         pos = self.get_next(pos, 2*direction)
                         if self.player == 1: self.score1 += self.board[pos]
                         else: self.score2 += self.board[pos]
-                        self.board[pos] == 0            
+                        self.board[pos] = 0            
                     break
 
 
