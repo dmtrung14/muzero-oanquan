@@ -13,16 +13,16 @@ class MuZeroConfig:
         # fmt: off
         # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
 
-        self.seed = 0  # Seed for numpy, torch and the game
+        self.seed = 42 # Seed for numpy, torch and the game
         self.max_num_gpus = None  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough memory. None will use every GPUs available
 
 
 
         ### Game
-        self.observation_shape = (3, 11, 11)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
-        self.action_space = list(range(11 * 11))  # Fixed list of all possible actions. You should only edit the length
+        self.observation_shape = (1, 1, 15)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
+        self.action_space = list(range(2 * 10))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
-        self.stacked_observations = 0  # Number of previous observations and previous actions to add to the current observation
+        self.stacked_observations = 2  # Number of previous observations and previous actions to add to the current observation
 
         # Evaluate
         self.muzero_player = 0  # Turn Muzero begins to play (0: MuZero plays first, 1: MuZero plays second)
@@ -282,15 +282,8 @@ class OAnQuan:
         return self.get_observation(), reward, done
     
     def get_observation(self):
-        # def get_observation(self):
-        # board_player1 = numpy.where(self.board == 1, 1, 0)
-        # board_player2 = numpy.where(self.board == -1, 1, 0)
-        # board_to_play = numpy.full((3, 3), self.player)
-        # return numpy.array([board_player1, board_player2, board_to_play], dtype="int32")
-        # thi return player_1 la uh noi di
-        # roi gio implement xong roi lam sao train cai model nay :)
+        return numpy.append(self.board, [self.score1, self.score2, self.player])
 
-        return numpy.array([self.board, self.player], dtype="int32")
 
     def legal_actions(self):
         legal = []
