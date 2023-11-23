@@ -262,6 +262,7 @@ class OAnQuan:
                 if self.board[self.get_next(pos, direction)] > 0:
                     pos = self.get_next(pos, direction)
                     num_seeds = self.board[pos]
+                    self.board[pos] = 0
                 else:
                     while self.board[self.get_next(pos, direction)] == 0 and self.board[self.get_next(pos, 2*direction)] > 0:
                         pos = self.get_next(pos, 2*direction)
