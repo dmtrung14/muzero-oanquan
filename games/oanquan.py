@@ -20,7 +20,7 @@ class MuZeroConfig:
 
         ### Game
         self.observation_shape = (1, 1, 15)  # Dimensions of the game observation, must be 3 (channel, height, width). For a 1D array, please reshape it to (1, 1, length of array)
-        self.action_space = [(i, j) for i in range(12) for j in [1, -1]]  # Fixed list of all possible actions. You should only edit the length
+        self.action_space = list(range(2 * 12))  # Fixed list of all possible actions. You should only edit the length
         self.players = list(range(2))  # List of players. You should only edit the length
         self.stacked_observations = 2  # Number of previous observations and previous actions to add to the current observation
 
@@ -243,11 +243,12 @@ class OAnQuan:
         return (pos + direction) % len(self.board)
 
     def step(self, action):
-        # action = [value, direction] where value is either from 1 to 5 or to 12
-        # and direction is -1 for clockwise and +1 for counter clockwise
+        # action = with 2 elements: position and direction
+        # last bit denotes the direction
+        # first 4 bits denotes the position
         previous_score = self.get_score()
-        direction = action[1]
-        pos = action[0]
+        direction = 1 if action % 2 == 0 else - 1
+        pos = action//2
         num_seeds = self.board[pos] if self.board[pos] > 0 else 5
         self.board[pos] = 0
         while num_seeds > 0: # <--- here
@@ -290,11 +291,9 @@ class OAnQuan:
         for i in range(self.board_size):
             # checking basic condition that we don't start from the mandarin and the squares are not empty
             if i % 6 != 0 and self.board[i] > 0:
-                if self.to_play == 0 and i <= 5:
-                    legal.append((i, -1), (i, 1))
-                elif self.to_play == 1 and i >= 7:
-                    legal.append((i, -1), (i, 1))
-        return legal if len(legal) > 0 else self.handle_empty() # handle empty() dep trai
+                if (self.to_play == 0 and i <= 5) or (self.to_play == 1 and i >= 7):
+                    legal.append(2*i, 2*i+1)
+        return legal if len(legal) > 0 else self.handle_empty() # handle empty()
 
     def is_finished(self):
         return all(seeds == 0 for seeds in self.board) or (self.board[0] == 0 and self.board[6] == 0)
@@ -307,13 +306,13 @@ class OAnQuan:
     def handle_empty(self):
         if self.player == 1: 
             self.score1 -= 5
-            result = [(i, -1) for i in range(1, 6)]
-            result.extend([(i, 1) for i in range(1, 6)])
+            result = [2 * i for i in range(1, 6)]
+            result.extend([2 * i + 1 for i in range(1, 6)])
             return result
         else:
             self.score2 -= 5
-            result = [(i, -1) for i in range(7, 12)]
-            result.extend([(i, 1) for i in range(7, 12)])
+            result = [2 * i for i in range(7, )]
+            result.extend([2 * i + 1 for i in range(7, )])
             return result
     
 
