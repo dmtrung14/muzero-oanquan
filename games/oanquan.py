@@ -307,10 +307,14 @@ class OAnQuan:
     def handle_empty(self):
         if self.player == 1: 
             self.score1 -= 5
-            return [(i, -1) for i in range(1, 6)].extend([(i, 1) for i in range(1, 6)])
+            result = [(i, -1) for i in range(1, 6)]
+            result.extend([(i, 1) for i in range(1, 6)])
+            return result
         else:
             self.score2 -= 5
-            return [(i, -1) for i in range(7, )].extend([(i, 1) for i in range(7, )])
+            result = [(i, -1) for i in range(7, 12)]
+            result.extend([(i, 1) for i in range(7, 12)])
+            return result
     
 
     def render(self):
