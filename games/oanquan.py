@@ -260,9 +260,8 @@ class OAnQuan:
             # if the next position is non-empty:
             if num_seeds == 0:
                 if self.board[self.get_next(pos, direction)] > 0:
-
                     pos = self.get_next(pos, direction)
-                    num_seeds = self.board[self.get_next(pos, direction)]
+                    num_seeds = self.board[pos]
                 else:
                     while self.board[self.get_next(pos, direction)] == 0 and self.board[self.get_next(pos, 2*direction)] > 0:
                         pos = self.get_next(pos, 2*direction)
