@@ -1,1 +1,2 @@
 notebook.ipynb linguist-vendored=true
+*.checkpoint filter=lfs diff=lfs merge=lfs -text
