@@ -282,7 +282,7 @@ class OAnQuan:
         return self.get_observation(), reward, done
     
     def get_observation(self):
-        return numpy.append(self.board, [self.score1, self.score2, self.player])
+        return numpy.append(self.board, [self.score1, self.score2, self.player]).reshape(1,1,15)
 
 
     def legal_actions(self):
