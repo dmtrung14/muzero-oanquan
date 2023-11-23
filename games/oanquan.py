@@ -134,7 +134,7 @@ class Game(AbstractGame):
     """
 
     def __init__(self, seed=None):
-        self.env = Gomoku()
+        self.env = OAnQuan()
 
     def step(self, action):
         """
@@ -217,113 +217,120 @@ class Game(AbstractGame):
         return self.env.action_to_human_input(action)
 
 
-class Gomoku:
+class OAnQuan:
     def __init__(self):
-        self.board_size = 11
-        self.board = numpy.zeros((self.board_size, self.board_size), dtype="int32")
+        self.board_size = 12
+        self.board = numpy.full((self.board_size,), 5, dtype=int)
         self.player = 1
-        self.board_markers = [
-            chr(x) for x in range(ord("A"), ord("A") + self.board_size)
-        ]
+        self.score1 = 0
+        self.score2 = 0
+
+        # we can denote the mandarin squares as 0 and 6, 
+        # first player squares as 1->5 and second player squares as 7->11
 
     def to_play(self):
         return 0 if self.player == 1 else 1
 
     def reset(self):
-        self.board = numpy.zeros((self.board_size, self.board_size), dtype="int32")
+        self.board = numpy.full((self.board_size,), 5, dtype="int32")
         self.player = 1
         return self.get_observation()
+    
+    def get_score(self):
+        return self.score1 if self.player == 1 else self.score2
+    
+    def get_next(self, pos, direction):
+        return (pos + direction) % len(self.board)
 
     def step(self, action):
-        x = math.floor(action / self.board_size)
-        y = action % self.board_size
-        self.board[x][y] = self.player
+        # action = [value, direction] where value is either from 1 to 5 or to 12
+        # and direction is -1 for clockwise and +1 for counter clockwise
+        previous_score = self.get_score()
+        direction = action[1]
+        pos = action[0]
+        num_seeds = self.board[pos] if self.board[pos] > 0 else 5
+        self.board[pos] = 0
+        while num_seeds > 0: # <--- here
+            # pos update with mod 12
+            
+            pos = self.get_next(pos, direction)
+            # add the seed to the new pos then decrementing the total number of seeds in hand
+            self.board[pos] += 1
+            num_seeds -= 1
+            # if the next position is non-empty:
+            if num_seeds == 0:
+                if self.board[self.get_next(pos, direction)] > 0:
+
+                    pos = self.get_next(pos, direction)
+                    num_seeds = self.board[self.get_next(pos, direction)]
+                else:
+                    while self.board[self.get_next(pos, direction)] == 0 and self.board[self.get_next(pos, 2*direction)] > 0:
+                        pos = self.get_next(pos, 2*direction)
+                        if self.player == 1: self.score1 += self.board[pos]
+                        else: self.score2 += self.board[pos]
+                        self.board[pos] == 0            
+                    break
+
 
         done = self.is_finished()
+        current_score = self.get_score()
 
-        reward = 1 if done else 0
+        reward = (current_score - previous_score) if not done else self.win()
 
         self.player *= -1
 
         return self.get_observation(), reward, done
-
+    
     def get_observation(self):
-        board_player1 = numpy.where(self.board == 1, 1.0, 0.0)
-        board_player2 = numpy.where(self.board == -1, 1.0, 0.0)
-        board_to_play = numpy.full((11, 11), self.player, dtype="int32")
-        return numpy.array([board_player1, board_player2, board_to_play])
+        # def get_observation(self):
+        # board_player1 = numpy.where(self.board == 1, 1, 0)
+        # board_player2 = numpy.where(self.board == -1, 1, 0)
+        # board_to_play = numpy.full((3, 3), self.player)
+        # return numpy.array([board_player1, board_player2, board_to_play], dtype="int32")
+        # thi return player_1 la uh noi di
+        # roi gio implement xong roi lam sao train cai model nay :)
+
+        return numpy.array([self.board, self.player], dtype="int32")
 
     def legal_actions(self):
         legal = []
         for i in range(self.board_size):
-            for j in range(self.board_size):
-                if self.board[i][j] == 0:
-                    legal.append(i * self.board_size + j)
-        return legal
+            # checking basic condition that we don't start from the mandarin and the squares are not empty
+            if i % 6 != 0 and self.board[i] > 0:
+                if self.to_play == 0 and i <= 5:
+                    legal.append((i, -1), (i, 1))
+                elif self.to_play == 1 and i >= 7:
+                    legal.append((i, -1), (i, 1))
+        return legal if len(legal) > 0 else self.handle_empty() # handle empty() dep trai
 
     def is_finished(self):
-        has_legal_actions = False
-        directions = ((1, -1), (1, 0), (1, 1), (0, 1))
-        for i in range(self.board_size):
-            for j in range(self.board_size):
-                # if no stone is on the position, don't need to consider this position
-                if self.board[i][j] == 0:
-                    has_legal_actions = True
-                    continue
-                # value-value at a coord, i-row, j-col
-                player = self.board[i][j]
-                # check if there exist 5 in a line
-                for d in directions:
-                    x, y = i, j
-                    count = 0
-                    for _ in range(5):
-                        if (x not in range(self.board_size)) or (
-                            y not in range(self.board_size)
-                        ):
-                            break
-                        if self.board[x][y] != player:
-                            break
-                        x += d[0]
-                        y += d[1]
-                        count += 1
-                        # if 5 in a line, store positions of all stones, return value
-                        if count == 5:
-                            return True
-        return not has_legal_actions
+        return all(seeds == 0 for seeds in self.board) or (self.board[0] == 0 and self.board[6] == 0)
+    
+    def win(self):
+        # given that the game ended reward the player with 100 points if this is a win else penalize
+        # with 100 points
+        return 100 if (self.player * (self.score1 - self.score2) > 0) else -100
+    
+    def handle_empty(self):
+        if self.player == 1: 
+            self.score1 -= 5
+            return [(i, -1) for i in range(1, 6)].extend([(i, 1) for i in range(1, 6)])
+        else:
+            self.score2 -= 5
+            return [(i, -1) for i in range(7, )].extend([(i, 1) for i in range(7, )])
+    
 
     def render(self):
-        marker = "  "
-        for i in range(self.board_size):
-            marker = marker + self.board_markers[i] + " "
-        print(marker)
-        for row in range(self.board_size):
-            print(chr(ord("A") + row), end=" ")
-            for col in range(self.board_size):
-                ch = self.board[row][col]
-                if ch == 0:
-                    print(".", end=" ")
-                elif ch == 1:
-                    print("X", end=" ")
-                elif ch == -1:
-                    print("O", end=" ")
-            print()
+        print("Player:", self.player)
+        print("Board:", self.board)
 
     def human_input_to_action(self):
-        human_input = input("Enter an action: ")
-        if (
-            len(human_input) == 2
-            and human_input[0] in self.board_markers
-            and human_input[1] in self.board_markers
-        ):
-            x = ord(human_input[0]) - 65
-            y = ord(human_input[1]) - 65
-            if self.board[x][y] == 0:
-                return True, x * self.board_size + y
+        human_input = list(map(int, input("enter square and direction: ").split()))
+        if human_input.isdigit():
+            action = int(human_input)
+            if action in self.legal_actions():
+                return True, action
         return False, -1
 
     def action_to_human_input(self, action):
-        x = math.floor(action / self.board_size)
-        y = action % self.board_size
-        x = chr(x + 65)
-        y = chr(y + 65)
-        return x + y
+        return str(action)
