@@ -2,11 +2,26 @@ import datetime
 import math
 import pathlib
 
+import pygame
+from PIL import Image
+import io
+import IPython.display
+
 import numpy
+import numpy as np
 import torch
 
 from .abstract_game import AbstractGame
 
+# Constants
+WIDTH, HEIGHT = 450, 150
+GRID_SIZE = 6
+SQUARE_SIZE = 50
+MARGIN = 10
+BOARD_COLOR = (255, 255, 255)
+LINE_COLOR = (0, 0, 0)
+SEED_COLOR = (0, 0, 0)
+POS = [(30,50),(80,25),(130,25),(180,25),(230,25),(280,25),(330,50),(280,75),(230,75),(180,75),(130,75),(80,75)]
 
 class MuZeroConfig:
     def __init__(self):
@@ -316,8 +331,54 @@ class OAnQuan:
     
 
     def render(self):
-        print("Player:", self.player)
-        print("Board:", self.board)
+        seeds_array = self.board
+        # Initialize Pygame
+        pygame.init()
+
+        # Create a surface to draw on
+        screen = pygame.Surface((WIDTH, HEIGHT))
+
+        # Function to draw the board
+        def draw_board():
+            screen.fill(BOARD_COLOR)
+
+            # Draw horizontal lines
+            for i in range(0,3,2):
+                pygame.draw.line(screen, LINE_COLOR, (MARGIN, MARGIN + i * SQUARE_SIZE), (MARGIN+SQUARE_SIZE*7, MARGIN + i * SQUARE_SIZE), 2)
+
+            pygame.draw.line(screen, LINE_COLOR, (MARGIN + SQUARE_SIZE, MARGIN + SQUARE_SIZE), (MARGIN + SQUARE_SIZE * 6, MARGIN + SQUARE_SIZE), 2)
+
+            # Draw vertical lines
+            for i in range(GRID_SIZE+2):
+                pygame.draw.line(screen, LINE_COLOR, (MARGIN + i * SQUARE_SIZE, MARGIN), (MARGIN + i * SQUARE_SIZE, MARGIN+SQUARE_SIZE*2), 2)
+
+            # Add number of seeds to each square
+            font = pygame.font.SysFont(None, 24)
+            for i in range(len(seeds_array)):
+                img = font.render(str(seeds_array[i]), True, LINE_COLOR)
+                screen.blit(img, POS[i])
+
+        # Draw the board
+        draw_board()
+
+        # Convert Pygame surface to bytes
+        image_data = pygame.image.tostring(screen, 'RGB')
+
+        # Convert bytes to NumPy array
+        image_array = np.frombuffer(image_data, dtype=np.uint8).reshape((HEIGHT, WIDTH, 3))
+
+        # Convert NumPy array to PIL Image
+        pil_image = Image.fromarray(image_array)
+
+        # Convert PIL Image to BytesIO
+        image_stream = io.BytesIO()
+        pil_image.save(image_stream, format='PNG')
+
+        # Display the image in Colab
+        IPython.display.display(IPython.display.Image(data=image_stream.getvalue()))
+
+        # Return the PIL Image
+        return pil_image
 
     def human_input_to_action(self):
         human_input = int(input("Enter action number: "))
