@@ -305,7 +305,7 @@ class OAnQuan:
         for i in range(self.board_size):
             # checking basic condition that we don't start from the mandarin and the squares are not empty
             if i % 6 != 0 and self.board[i] > 0:
-                if (self.to_play == 0 and i <= 5) or (self.to_play == 1 and i >= 7):
+                if (self.player == -1 and i <= 5) or (self.player == 1 and i >= 7):
                     legal.append(2*i, 2*i+1)
         return legal if len(legal) > 0 else self.handle_empty() # handle empty()
 
@@ -331,54 +331,10 @@ class OAnQuan:
     
 
     def render(self):
-        seeds_array = self.board
-        # Initialize Pygame
-        pygame.init()
-
-        # Create a surface to draw on
-        screen = pygame.Surface((WIDTH, HEIGHT))
-
-        # Function to draw the board
-        def draw_board():
-            screen.fill(BOARD_COLOR)
-
-            # Draw horizontal lines
-            for i in range(0,3,2):
-                pygame.draw.line(screen, LINE_COLOR, (MARGIN, MARGIN + i * SQUARE_SIZE), (MARGIN+SQUARE_SIZE*7, MARGIN + i * SQUARE_SIZE), 2)
-
-            pygame.draw.line(screen, LINE_COLOR, (MARGIN + SQUARE_SIZE, MARGIN + SQUARE_SIZE), (MARGIN + SQUARE_SIZE * 6, MARGIN + SQUARE_SIZE), 2)
-
-            # Draw vertical lines
-            for i in range(GRID_SIZE+2):
-                pygame.draw.line(screen, LINE_COLOR, (MARGIN + i * SQUARE_SIZE, MARGIN), (MARGIN + i * SQUARE_SIZE, MARGIN+SQUARE_SIZE*2), 2)
-
-            # Add number of seeds to each square
-            font = pygame.font.SysFont(None, 24)
-            for i in range(len(seeds_array)):
-                img = font.render(str(seeds_array[i]), True, LINE_COLOR)
-                screen.blit(img, POS[i])
-
-        # Draw the board
-        draw_board()
-
-        # Convert Pygame surface to bytes
-        image_data = pygame.image.tostring(screen, 'RGB')
-
-        # Convert bytes to NumPy array
-        image_array = np.frombuffer(image_data, dtype=np.uint8).reshape((HEIGHT, WIDTH, 3))
-
-        # Convert NumPy array to PIL Image
-        pil_image = Image.fromarray(image_array)
-
-        # Convert PIL Image to BytesIO
-        image_stream = io.BytesIO()
-        pil_image.save(image_stream, format='PNG')
-
-        # Display the image in Colab
-        IPython.display.display(IPython.display.Image(data=image_stream.getvalue()))
-
-        # Return the PIL Image
-        return pil_image
+        print("Player: ", self.player)
+        print("Score: ", self.score1, " - ", self.score2)
+        print("Board: ", self.board)
+        
 
     def human_input_to_action(self):
         human_input = int(input("Enter action number: "))
