@@ -306,7 +306,8 @@ class OAnQuan:
             # checking basic condition that we don't start from the mandarin and the squares are not empty
             if i % 6 != 0 and self.board[i] > 0:
                 if (self.player == -1 and i <= 5) or (self.player == 1 and i >= 7):
-                    legal.append(2*i, 2*i+1)
+                    legal.append(2*i)
+                    legal.append(2*i + 1)
         return legal if len(legal) > 0 else self.handle_empty() # handle empty()
 
     def is_finished(self):
