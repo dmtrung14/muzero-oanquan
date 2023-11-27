@@ -334,7 +334,7 @@ class OAnQuan:
     def render(self):
         print("Player: ", self.player)
         print("Score: ", self.score1, " - ", self.score2)
-        print("Board: ", self.board)
+        print("Board: ", self.board.tolist())
         
 
     def human_input_to_action(self):
