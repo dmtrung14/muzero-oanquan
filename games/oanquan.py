@@ -2,13 +2,7 @@ import datetime
 import math
 import pathlib
 
-import pygame
-from PIL import Image
-import io
-import IPython.display
-
 import numpy
-import numpy as np
 import torch
 
 from .abstract_game import AbstractGame
