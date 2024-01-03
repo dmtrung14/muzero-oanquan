@@ -1,28 +1,21 @@
 import datetime
 import math
 import pathlib
+import random
 
 import numpy
 import torch
 
 from .abstract_game import AbstractGame
 
-# Constants
-WIDTH, HEIGHT = 450, 150
-GRID_SIZE = 6
-SQUARE_SIZE = 50
-MARGIN = 10
-BOARD_COLOR = (255, 255, 255)
-LINE_COLOR = (0, 0, 0)
-SEED_COLOR = (0, 0, 0)
-POS = [(30,50),(80,25),(130,25),(180,25),(230,25),(280,25),(330,50),(280,75),(230,75),(180,75),(130,75),(80,75)]
+
 
 class MuZeroConfig:
     def __init__(self):
         # fmt: off
         # More information is available here: https://github.com/werner-duvaud/muzero-general/wiki/Hyperparameter-Optimization
 
-        self.seed = 42 # Seed for numpy, torch and the game
+        self.seed = 0 # Seed for numpy, torch and the game
         self.max_num_gpus = None  # Fix the maximum number of GPUs to use. It's usually faster to use a single GPU (set it to 1) if it has enough memory. None will use every GPUs available
 
 
@@ -48,7 +41,7 @@ class MuZeroConfig:
         self.temperature_threshold = None  # Number of moves before dropping the temperature given by visit_softmax_temperature_fn to 0 (ie selecting the best action). If None, visit_softmax_temperature_fn is used every time
 
         # Root prior exploration noise
-        self.root_dirichlet_alpha = 0.3
+        self.root_dirichlet_alpha = 0.2
         self.root_exploration_fraction = 0.25
 
         # UCB formula
@@ -58,7 +51,7 @@ class MuZeroConfig:
 
 
         ### Network
-        self.network = "resnet"  # "resnet" / "fullyconnected"
+        self.network = "fullyconnected"  # "resnet" / "fullyconnected"
         self.support_size = 10  # Value and reward are scaled (with almost sqrt) and encoded on a vector with a range of -support_size to support_size. Choose it so that support_size <= sqrt(max(abs(discounted reward)))
         
         # Residual Network
@@ -87,7 +80,7 @@ class MuZeroConfig:
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 1000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size = 32  # Number of parts of games to train on at each training step
-        self.checkpoint_interval = 50  # Number of training steps before using the model for self-playing
+        self.checkpoint_interval = 10  # Number of training steps before using the model for self-playing
         self.value_loss_weight = 1  # Scale the value loss to avoid overfitting of the value function, paper recommends 0.25 (See paper appendix Reanalyze)
         self.train_on_gpu = torch.cuda.is_available()  # Train on GPU if available
 
@@ -96,7 +89,7 @@ class MuZeroConfig:
         self.momentum = 0.9  # Used only if optimizer is SGD
 
         # Exponential learning rate schedule
-        self.lr_init = 0.008  # Initial learning rate
+        self.lr_init = 0.08  # Initial learning rate
         self.lr_decay_rate = 1  # Set it to 1 to use a constant learning rate
         self.lr_decay_steps = 10000
 
@@ -242,6 +235,8 @@ class OAnQuan:
     def reset(self):
         self.board = numpy.full((self.board_size,), 5, dtype="int32")
         self.player = 1
+        self.score1 = 0
+        self.score2 = 0
         return self.get_observation()
     
     def get_score(self):
@@ -266,6 +261,7 @@ class OAnQuan:
             # add the seed to the new pos then decrementing the total number of seeds in hand
             self.board[pos] += 1
             num_seeds -= 1
+            
             # if the next position is non-empty:
             if num_seeds == 0:
                 if self.board[self.get_next(pos, direction)] > 0:
@@ -275,8 +271,10 @@ class OAnQuan:
                 else:
                     while self.board[self.get_next(pos, direction)] == 0 and self.board[self.get_next(pos, 2*direction)] > 0:
                         pos = self.get_next(pos, 2*direction)
-                        if self.player == 1: self.score1 += self.board[pos]
-                        else: self.score2 += self.board[pos]
+                        if self.player == 1: 
+                            self.score1 += self.board[pos]
+                        else: 
+                            self.score2 += self.board[pos]
                         self.board[pos] = 0            
                     break
 
@@ -285,6 +283,7 @@ class OAnQuan:
         current_score = self.get_score()
 
         reward = (current_score - previous_score) if not done else self.win()
+        # reward = random.randint(0, 9) if not done else self.win()
 
         self.player *= -1
 
@@ -310,7 +309,7 @@ class OAnQuan:
     def win(self):
         # given that the game ended reward the player with 100 points if this is a win else penalize
         # with 100 points
-        return 50 if (self.player * (self.score1 - self.score2) > 0) else -50
+        return 30 if (self.player * (self.score1 - self.score2) > 0) else -30
     
     def handle_empty(self):
         if self.player == 1: 
