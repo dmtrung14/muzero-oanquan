@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">  
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
+    <title>About</title>
+</head>
+<body style="background: white;">
+    <div style="display: flex; flex-direction:row">
+        <div class="vertical-menu">
+            <a href="index.html">Home</a>
+            <a href="about.html" class="active">About</a>
+            <a href="submit.html">Submit</a>
+            <a href="leaderboard.html">Leaderboard</a>
+            <a href="writeup.html">Writeup</a>  
+        </div>
+        <div style="margin-left:3vw; margin-right: 3vw">
+            <h1>Welcome to O An Quan AI Challenge 2024</h1>
+            <p>
+                The O An Quan AI Challenge is a competition where participants can submit their own code to play against our benchmarking engine. 
+                The benchmarking engine has been trained using the MuZero algorithm in 100 self-played games.
+            </p>
+            <p>
+                To participate in the challenge, we kindly ask the participants to submit the checkpoint trained according to the rules of the game as outlined below. 
+                Any submission that fails to comply with the format of the checkpoint will be disqualified. 
+            </p>
+            <p>
+                Join us in this exciting AI challenge and showcase your skills in the game of O An Quan!
+            </p>
+            <div style="background-color: rgb(220, 220, 220); padding:20px; width:fit-content; height:fit-content; border-radius: 5px;">
+                <h2>Table of Contents</h2>
+            <ul>
+                <li><a href="#rules" style="text-decoration: none;">Rules of O An Quan</a></li>
+                <ul>
+                    <li><a href="#scattering" style="text-decoration: none;" >Scattering</a></li>
+                    <li><a href="#capturing" style="text-decoration: none;">Capturing</a></li>
+                    <li><a href="#winning" style="text-decoration: none;">Winning</a></li>
+                    <li><a href="#variation" style="text-decoration: none;">Our Variation</a></li>
+                </ul>
+                <li><a href="#submission" style="text-decoration: none;">Submission Format</a></li>
+                <ul>
+                    <li><a href="#file" style="text-decoration: none;">File Format</a></li>
+                    <li><a href="#output" style="text-decoration: none;">Output Format</a></li>
+                    <li><a href="#benchmarking" style="text-decoration: none;">Training Benchmarking</a></li>
+                </ul>
+                <li><a href="#writeup" style="text-decoration: none;">Writeup</a></li>
+            </ul>
+            </div>
+            
+            <h2 id="rules">Rules of O An Quan</h2>
+            <p>
+                O An Quan is a traditional Vietnamese game played by two players. 
+                The game is played on a board with 10 pits and 2 stores. 
+                Each player controls 5 pits and 1 store. 
+                The game starts with 5 seeds in each pit. 
+                The objective of the game is to capture more seeds than the opponent. 
+                The game ends when one player has no more seeds in their pits. 
+                The player with more seeds in their store wins the game.
+            </p>
+            <h3 id="scattering">Scattering</h3>
+                Players play rock paper scissors to determine the first player.
+
+                The first player takes up all the pieces of any rice field square on their side of the board and distributes (Vietnamese: rải: literally: scatter) one piece per square, starting at the next square in either direction. When all pieces are distributed, the player repeats by taking up the pieces of the following square and distributing them.
+
+                If their side of the board is empty, they must use five previously-won pieces to place one piece in each square on their side before repeating the distribution. (If they do not possess any pieces, they must borrow a piece from the other player and return it when counting the points at the end of the game.)
+
+                <h3 id="capturing">Capturing</h3>
+                When the next square to be distributed is empty, the player wins all the pieces in the square after that. A square that contains a lot of pieces is the nhà giàu square (literally: rich square).
+
+                When the next square is an empty Mandarin square, or the next two squares are empty, it becomes the other player's turn.
+
+                In some game variations, the Mandarin square can contain little citizen pieces called quan non (literally - quan: Mandarin; non: young or unripened) which may not be captured. In this case, the Mandarin square is called the nhà quan non square (literally: Mandarin's house square).
+            
+            <h3 id="winning">Winning</h3>
+            The game ends when one player has no more pieces in their rice fields. The other player wins all the pieces left on the board, including those in the Mandarin square. The winner is the player with the most pieces.
+
+            <h3 id="variation">Our Variation</h3>
+            We have made the following simplifications to the game:
+            <ul>
+                <li>The game ends immediately when one player reach 31 points.</li>
+                <li>The game ends immediately when both mandarin squares are empty.</li>
+                <li>The player with no more pieces in his territory can keep playing, regardless of if he has at least 5 
+                    captured pieces or not. However, his point will be deduced by 5.
+                </li>
+                </ul>
+            <h2 id="submission">Submission Format</h2>
+                <h3 id="file">File Format</h3>
+            <p>
+                The submission should be a checkpoint file in the format of a .tar.gz file. 
+                The checkpoint file should be named <code>model.ckpt</code>, <code>model.checkpoint</code>, or <code>model.pth</code> depending on the framework used.
+            </p>
+            <h3 id="output">Output Format</h3>
+                The output of the model should be a number from 0 to 23, indicating the action to be taken given a state of the board.
+                The mapping from the number to the action is as follows: <br></br>
+                <img src="assets/rule.png" alt="action mapping" style="width: 50%; height: auto; display:block; margin-left:auto;margin-right:auto"> <br></br>
+                Given the numbering above, a move should be numbered <code>2*x</code> if it is clockwise and <code>2*x+1</code> if it is counter-clockwise.
+                Furthermore, the first player possesses squares from 1 to 5, while the second player possesses squares from 7 to 11.
+
+            <h3 id="benchmarking">Training Benchmarking</h3>
+                The benchmarking engine will play 100 games against the submitted model, with 50 games as the first player and 50 games as the second player.
+                The benchmarking engine is trained using the MuZero algorithm, with on 100 self-play games with 1000 steps each, taking around 1.5 hours on 
+                Intel(R) Core(TM) i5-8365U CPU @ 1.60GHz. We kindly ask that the participants perform moderate training steps to match the capabilities of the
+                algorithm rather than through bruteforce training. More information can be found on the <a href="https://github.com/dmtrung14/muzero-oanquan" target="_blank">Official GitHub of the Challenge</a><br></br> A submission is deemed successul if it wins > 50% of the games as the first player and  >= 50% of the games as the second player.
+                The participant should then expect an invitation to submit the source code for verification. Due to intensive amount of work required for verification, please expect the verification process to take up to 2 weeks.
+                The leaderboard will be updated on a weekly basis. <br></br>
+
+            <h2 id="writeup">Writeup</h2>
+                The participant should also expect to be invited to submit a writeup of the model, which will be published on the website. Even though the writeup is only mandatory if participants who compete for prizes, we highly encourage 
+                each and every participant to share their algorithms and improvements to the game. We are committed to reviewing and publishing the writeup within 2 weeks of submission.
+            <div style="height: 30px"></div>
+        </div> 
+
+    </div>
+</body>
+<footer>
+    © 2024 O An Quan AI Challenge by Trung Dang
+</footer>
+</html>
