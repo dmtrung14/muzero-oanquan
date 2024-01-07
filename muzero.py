@@ -19,6 +19,7 @@ import replay_buffer
 import self_play
 import shared_storage
 import trainer
+import cross_play
 
 
 class MuZero:
@@ -367,7 +368,7 @@ class MuZero:
         self.shared_storage_worker = None
 
     def test(
-        self, render=True, opponent=None, muzero_player=None, num_tests=1, num_gpus=0
+        self, render=True, opponent=None, muzero_player=None, num_tests=1, num_gpus=0, cross=False
     ):
         """
         Test the model in a dedicated thread.
@@ -391,7 +392,11 @@ class MuZero:
         self_play_worker = self_play.SelfPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
-        ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000))
+        ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) if cross else cross_play.CrossPlay.options(
+            num_cpus=0,
+            num_gpus=num_gpus,
+        ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
+        num_tests = num_tests if not cross else 100
         results = []
         for i in range(num_tests):
             print(f"Testing {i+1}/{num_tests}")

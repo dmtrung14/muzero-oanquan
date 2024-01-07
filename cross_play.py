@@ -22,12 +22,13 @@ class CrossPlay:
         numpy.random.seed(seed)
         torch.manual_seed(seed)
 
-        # Initialize the network
+        # Initialize the trained model
         self.model1 = models.MuZeroNetwork(self.config)
         self.model1.set_weights(ckpt1["weights"])
         self.model1.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
         self.model1.eval()
 
+        # Initialize the submitted model
         self.model2 = models.MuZeroNetwork(self.config)
         self.model2.set_weights(ckpt2["weights"])
         self.model2.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
@@ -466,3 +467,4 @@ class MinMaxStats:
             # We normalize only when we have set the maximum and minimum values
             return (value - self.minimum) / (self.maximum - self.minimum)
         return value
+

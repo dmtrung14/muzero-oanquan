@@ -74,7 +74,7 @@ class MuZeroConfig:
 
 
         ### Training
-        self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / pathlib.Path(__file__).stem / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
+        self.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / datetime.datetime.now().strftime("%Y-%m-%d--%H-%M-%S")  # Path to store the model weights and TensorBoard logs
         self.save_model = True  # Save the checkpoint in results_path as model.checkpoint
         self.training_steps = 1000  # Total number of training steps (ie weights update according to a batch)
         self.batch_size = 32  # Number of parts of games to train on at each training step
