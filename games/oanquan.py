@@ -329,12 +329,12 @@ class OAnQuan:
         
 
     def human_input_to_action(self):
-        human_input = int(input("Enter action number: "))
-        if human_input.isdigit():
-            action = int(human_input)
-            if action in self.legal_actions():
-                return True, action
+        action = int(input("Enter action number: "))
+        if action in self.legal_actions():
+            return True, action
         return False, -1
 
     def action_to_human_input(self, action):
-        return str(action)
+        square = action // 2
+        direction = "clockwise" if action % 2 == 0 else "counterclockwise"
+        return square + direction
