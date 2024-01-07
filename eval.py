@@ -67,30 +67,35 @@ class CrossPlay:
 
                 # Choose the action
                 if opponent == "self" or muzero_player == self.game.to_play():
+                    
                     root, mcts_info = MCTS(self.config).run(
-                        self.model,
+                        self.model1,
                         stacked_observations,
                         self.game.legal_actions(),
                         self.game.to_play(),
                         True,
                     )
-                    action = self.select_action(
+                    
+                else:
+                    root, mcts_info = MCTS(self.config).run(
+                        self.model2,
+                        stacked_observations,
+                        self.game.legal_actions(),
+                        self.game.to_play(),
+                        True,
+                    )
+                if render:
+                        print(f'Tree depth: {mcts_info["max_tree_depth"]}')
+                        print(
+                            f"Root value for player {self.game.to_play()}: {root.value():.2f}"
+                        )
+                action = self.select_action(
                         root,
                         temperature
                         if not temperature_threshold
                         or len(game_history.action_history) < temperature_threshold
                         else 0,
-                    )
-
-                    if render:
-                        print(f'Tree depth: {mcts_info["max_tree_depth"]}')
-                        print(
-                            f"Root value for player {self.game.to_play()}: {root.value():.2f}"
-                        )
-                else:
-                    action, root = self.select_opponent_action(
-                        opponent, stacked_observations
-                    )
+                )
 
                 observation, reward, done = self.game.step(action)
 
@@ -111,39 +116,6 @@ class CrossPlay:
     def close_game(self):
         self.game.close()
 
-    def select_opponent_action(self, opponent, stacked_observations):
-        """
-        Select opponent action for evaluating MuZero level.
-        """
-        if opponent == "human":
-            root, mcts_info = MCTS(self.config).run(
-                self.model,
-                stacked_observations,
-                self.game.legal_actions(),
-                self.game.to_play(),
-                True,
-            )
-            print(f'Tree depth: {mcts_info["max_tree_depth"]}')
-            print(f"Root value for player {self.game.to_play()}: {root.value():.2f}")
-            print(
-                f"Player {self.game.to_play()} turn. MuZero suggests {self.game.action_to_string(self.select_action(root, 0))}"
-            )
-            return self.game.human_to_action(), root
-        elif opponent == "expert":
-            return self.game.expert_agent(), None
-        elif opponent == "random":
-            assert (
-                self.game.legal_actions()
-            ), f"Legal actions should not be an empty array. Got {self.game.legal_actions()}."
-            assert set(self.game.legal_actions()).issubset(
-                set(self.config.action_space)
-            ), "Legal actions should be a subset of the action space."
-
-            return numpy.random.choice(self.game.legal_actions()), None
-        else:
-            raise NotImplementedError(
-                'Wrong argument: "opponent" argument should be "self", "human", "expert" or "random"'
-            )
 
     @staticmethod
     def select_action(node, temperature):
