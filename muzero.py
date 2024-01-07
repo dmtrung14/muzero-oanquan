@@ -46,9 +46,12 @@ class MuZero:
             game_module = importlib.import_module("games." + game_name)
             self.Game = game_module.Game
             self.config = game_module.MuZeroConfig()
+            self.cross_config = game_module.MuZeroConfig()
+            self.cross_config.results_path = pathlib.Path(__file__).resolve().parents[1] / "results" / "cross_play"
+
         except ModuleNotFoundError as err:
             print(
-                f'{game_name} is not a supported game name, try "cartpole" or refer to the documentation for adding a new game.'
+                f'{game_name} is not a supported game name, refer to the documentation for adding a new game.'
             )
             raise err
 
@@ -116,11 +119,18 @@ class MuZero:
             "num_reanalysed_games": 0,
             "terminate": False,
         }
+
+        self.checkpoint2 = copy.deepcopy(self.checkpoint)
+
         self.replay_buffer = {}
 
         cpu_actor = CPUActor.remote()
+
         cpu_weights = cpu_actor.get_initial_weights.remote(self.config)
+        check_weights = cpu_actor.get_initial_weights.remote(self.cross_config)
+
         self.checkpoint["weights"], self.summary = copy.deepcopy(ray.get(cpu_weights))
+        self.checkpoint2["weights"], self.summary2 = copy.deepcopy(ray.get(check_weights))
 
         # Workers
         self.self_play_workers = None
@@ -395,7 +405,7 @@ class MuZero:
         ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) if cross else cross_play.CrossPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
-        ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
+        ).remote(self.checkpoint, self.checkpoint2, self.Game, self.config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
         num_tests = num_tests if not cross else 100
         results = []
         for i in range(num_tests):
@@ -492,9 +502,9 @@ class CPUActor:
 
     def get_initial_weights(self, config):
         model = models.MuZeroNetwork(config)
-        weigths = model.get_weights()
+        weights = model.get_weights()
         summary = str(model).replace("\n", " \n\n")
-        return weigths, summary
+        return weights, summary
 
 
 def hyperparameter_search(
