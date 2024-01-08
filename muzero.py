@@ -406,10 +406,10 @@ class MuZero:
             num_cpus=0,
             num_gpus=num_gpus,
         ).remote(self.checkpoint, self.checkpoint2, self.Game, self.config, self.cross_config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
-        num_tests = num_tests if not cross else 100
+        num_tests = num_tests if not cross else 10
         results = []
         for i in range(num_tests):
-            print(f"Testing {i+1}/{num_tests}")
+            print(f"Testing {i+1}/{num_tests}", end="\r")
             results.append(
                 ray.get(
                     self_play_worker.play_game.remote(
@@ -436,6 +436,7 @@ class MuZero:
                     for history in results
                 ]
             )
+        print("Benchmarking result: ", result)
         return result
 
     def load_model(self, checkpoint_path=None, replay_buffer_path=None):
@@ -694,7 +695,7 @@ if __name__ == "__main__":
             )
             muzero = MuZero("oanquan", best_hyperparameters)
         elif choice == 7:
-            muzero.test(render=True, muzero_player=0, cross=True)
+            muzero.test(render=False, muzero_player=0, cross=True)
         else:
             break
         print("\nDone")

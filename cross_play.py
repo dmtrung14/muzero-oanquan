@@ -15,7 +15,8 @@ class CrossPlay:
     """
 
     def __init__(self, ckpt1, ckpt2, Game, config1, config2, seed):
-        self.config = config
+        self.config1 = config1
+        self.config2 = config2
         self.game = Game(seed)
 
         # Fix random generator seed
@@ -25,13 +26,13 @@ class CrossPlay:
         # Initialize the trained model
         self.model1 = models.MuZeroNetwork(self.config1)
         self.model1.set_weights(ckpt1["weights"])
-        self.model1.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
+        self.model1.to(torch.device("cuda" if self.config1.selfplay_on_gpu else "cpu"))
         self.model1.eval()
 
         # Initialize the submitted model
         self.model2 = models.MuZeroNetwork(self.config2)
         self.model2.set_weights(ckpt2["weights"])
-        self.model2.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
+        self.model2.to(torch.device("cuda" if self.config2.selfplay_on_gpu else "cpu"))
         self.model2.eval()
 
     def play_game(
@@ -54,22 +55,22 @@ class CrossPlay:
 
         with torch.no_grad():
             while (
-                not done and len(game_history.action_history) <= self.config.max_moves
+                not done and len(game_history.action_history) <= self.config1.max_moves
             ):
                 assert (
                     len(numpy.array(observation).shape) == 3
                 ), f"Observation should be 3 dimensionnal instead of {len(numpy.array(observation).shape)} dimensionnal. Got observation of shape: {numpy.array(observation).shape}"
                 assert (
-                    numpy.array(observation).shape == self.config.observation_shape
-                ), f"Observation should match the observation_shape defined in MuZeroConfig. Expected {self.config.observation_shape} but got {numpy.array(observation).shape}."
+                    numpy.array(observation).shape == self.config1.observation_shape
+                ), f"Observation should match the observation_shape defined in MuZeroConfig. Expected {self.config1.observation_shape} but got {numpy.array(observation).shape}."
                 stacked_observations = game_history.get_stacked_observations(
-                    -1, self.config.stacked_observations, len(self.config.action_space)
+                    -1, self.config1.stacked_observations, len(self.config1.action_space)
                 )
 
                 # Choose the action
                 if opponent == "self" or muzero_player == self.game.to_play():
                     
-                    root, mcts_info = MCTS(self.config).run(
+                    root, mcts_info = MCTS(self.config1).run(
                         self.model1,
                         stacked_observations,
                         self.game.legal_actions(),
@@ -78,7 +79,7 @@ class CrossPlay:
                     )
                     
                 else:
-                    root, mcts_info = MCTS(self.config).run(
+                    root, mcts_info = MCTS(self.config1).run(
                         self.model2,
                         stacked_observations,
                         self.game.legal_actions(),
@@ -104,7 +105,7 @@ class CrossPlay:
                     print(f"Played action: {self.game.action_to_string(action)}")
                     self.game.render()
 
-                game_history.store_search_statistics(root, self.config.action_space)
+                game_history.store_search_statistics(root, self.config1.action_space)
 
                 # Next batch
                 game_history.action_history.append(action)
