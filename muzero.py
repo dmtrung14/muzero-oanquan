@@ -406,7 +406,6 @@ class MuZero:
             num_cpus=0,
             num_gpus=num_gpus,
         ).remote(self.checkpoint, self.checkpoint2, self.Game, self.config, self.cross_config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
-        num_tests = num_tests if not cross else 10
         results = []
         for i in range(num_tests):
             print(f"Testing {i+1}/{num_tests}", end="\r")
@@ -425,6 +424,10 @@ class MuZero:
 
         if len(self.config.players) == 1:
             result = numpy.mean([sum(history.reward_history) for history in results])
+        elif opponent == "cross_play":
+            result = numpy.mean(
+                [1 if history.reward_history[-1] == 30 else 0 for history in results]
+            )
         else:
             result = numpy.mean(
                 [
@@ -436,6 +439,7 @@ class MuZero:
                     for history in results
                 ]
             )
+        # reward_histories = [history.reward_history for history in results]
         print("Benchmarking result: ", result)
         return result
 
@@ -695,7 +699,7 @@ if __name__ == "__main__":
             )
             muzero = MuZero("oanquan", best_hyperparameters)
         elif choice == 7:
-            muzero.test(render=False, muzero_player=0, cross=True)
+            muzero.test(render=False, opponent="cross_play", num_tests=10, muzero_player=0, cross=True)
         else:
             break
         print("\nDone")
