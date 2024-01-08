@@ -405,7 +405,7 @@ class MuZero:
         ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) if not cross else cross_play.CrossPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
-        ).remote(self.checkpoint, self.checkpoint2, self.Game, self.config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
+        ).remote(self.checkpoint, self.checkpoint2, self.Game, self.config, self.cross_config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
         num_tests = num_tests if not cross else 100
         results = []
         for i in range(num_tests):
@@ -648,6 +648,7 @@ if __name__ == "__main__":
             "Play against MuZero",
             "Test the game manually",
             "Hyperparameter search",
+            "Benchmark with other model",
             "Exit",
         ]
         print()
@@ -692,6 +693,8 @@ if __name__ == "__main__":
                 "oanquan", parametrization, budget, parallel_experiments, 20
             )
             muzero = MuZero("oanquan", best_hyperparameters)
+        elif choice == 7:
+            muzero.test(render=True, muzero_player=0, cross=True)
         else:
             break
         print("\nDone")

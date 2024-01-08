@@ -14,7 +14,7 @@ class CrossPlay:
     Class which run in a dedicated thread to play games and save them to the replay-buffer.
     """
 
-    def __init__(self, ckpt1, ckpt2, Game, config, seed):
+    def __init__(self, ckpt1, ckpt2, Game, config1, config2, seed):
         self.config = config
         self.game = Game(seed)
 
@@ -23,13 +23,13 @@ class CrossPlay:
         torch.manual_seed(seed)
 
         # Initialize the trained model
-        self.model1 = models.MuZeroNetwork(self.config)
+        self.model1 = models.MuZeroNetwork(self.config1)
         self.model1.set_weights(ckpt1["weights"])
         self.model1.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
         self.model1.eval()
 
         # Initialize the submitted model
-        self.model2 = models.MuZeroNetwork(self.config)
+        self.model2 = models.MuZeroNetwork(self.config2)
         self.model2.set_weights(ckpt2["weights"])
         self.model2.to(torch.device("cuda" if self.config.selfplay_on_gpu else "cpu"))
         self.model2.eval()
