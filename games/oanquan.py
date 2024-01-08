@@ -337,4 +337,4 @@ class OAnQuan:
     def action_to_human_input(self, action):
         square = action // 2
         direction = "clockwise" if action % 2 == 0 else "counterclockwise"
-        return square + direction
+        return str(square) + " " + direction

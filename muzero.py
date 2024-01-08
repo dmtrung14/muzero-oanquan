@@ -402,7 +402,7 @@ class MuZero:
         self_play_worker = self_play.SelfPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
-        ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) if cross else cross_play.CrossPlay.options(
+        ).remote(self.checkpoint, self.Game, self.config, numpy.random.randint(10000)) if not cross else cross_play.CrossPlay.options(
             num_cpus=0,
             num_gpus=num_gpus,
         ).remote(self.checkpoint, self.checkpoint2, self.Game, self.config, numpy.random.randint(10000)) # <-- this is where to add ckpt 2
