@@ -34,7 +34,7 @@ jobs:
         shell: bash
         run: |
           # Launch cartpole experiment and store the last reward of the training
-          python muzero.py cartpole '{"training_steps": 7500}' 2>&1 | tee log.txt
+          python muzero.py oanquan '{"training_steps": 1000}' 2>&1 | tee log.txt
 
       - name: Archive log artifact
         uses: actions/upload-artifact@v2
@@ -54,7 +54,7 @@ jobs:
           BEST_REWARD=$(cat log.txt | sed -n -E 's/^.*reward: ([0-9]+).*$/\1/p' | sort -n | tail -1)
 
           # Display best reward
-          echo "Best reward of cartpole training: " $BEST_REWARD
+          echo "Best reward of oanquan training: " $BEST_REWARD
 
           # Validate reward value
           if ((BEST_REWARD < 250)); then
