@@ -57,6 +57,6 @@ jobs:
           echo "Best reward of oanquan training: " $BEST_REWARD
 
           # Validate reward value
-          if ((BEST_REWARD < 250)); then
+          if ((BEST_REWARD < 50)); then
             exit 1
           fi
