@@ -8,7 +8,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" />
-    <script src="./script.js"></script>
+    <script defer src="script.js"></script>
     <title>Submit</title>
 </head>
 <body style="background:white;">
@@ -22,14 +22,17 @@
         </div>
         <div style="padding: 5vw">
             <h1>Submission for O An Quan AI Challenge</h1>
-            <h3>Name (or Team Name)</h3> <input class="submit-form" type="text" id="submit-name" name="name" placeholder="e.g. Trung Dang or dmtrung14 or superTeam">
+            <h3>Name (or Team Name, max 20 characters)</h3> <input class="submit-form" type="text" id="submit-name" name="name" placeholder="e.g. Trung Dang or dmtrung14 or superTeam">
             <h3>Email (main point of contact)</h3> <input class="submit-form" type="text" id="submit-email" name="name" placeholder="e.g. tmdang@umass.edu">
-            <h3>Affiliation</h3> <input class="submit-form" type="text" id="affiliation" name="name" placeholder="e.g. University of Massachusetts Amherst">
+            <h3>Affiliation</h3> <input class="submit-form" type="text" id="submit-affiliation" name="name" placeholder="e.g. University of Massachusetts Amherst">
             <h3>Model</h3>
-            <input class="submit-form" type="file" id="modelFile" name="filename">
+            <form action="/api/v1/cross_play" method="post" enctype="multipart/form-data">
+                <input class="submit-form" type="file" id="modelFile" name="modelFile">
+            </form>
             <button class="submit-button" id="submit-model">Submit</button>
         </div>
     </div>
+    
 </body>
 <footer>
     © 2024 O An Quan AI Challenge by Trung Dang
