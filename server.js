@@ -1,9 +1,9 @@
 const express = require('express');
 const runTest = require('./modules/runTest.js');
 const connectDB = require('./modules/connect.js');
-const fs = require('fs');
+require('dotenv').config()
 const app = express();
-const { User, Model } = require('./modules/schemas');
+const { User } = require('./modules/schemas');
 const multer = require('multer')
 
 const port = process.env.PORT || 3000;
@@ -38,7 +38,7 @@ app.post('/api/v1/cross_play', upload.single("modelFile"), (req, res) => {
 
 const start = async () => {
     try {
-        url = "mongodb+srv://dmtrung14:dangminhxu@cluster0.stal6zb.mongodb.net/muzero-oanquan?retryWrites=true&w=majority"
+        url = process.env.MONGO_URI
         await connectDB(url);
         app.listen(port, () => {
             console.log('Server started on port ' + port);
