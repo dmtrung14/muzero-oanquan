@@ -13,13 +13,7 @@ import ray
 import torch
 from torch.utils.tensorboard import SummaryWriter
 
-import diagnose_model
-import models
-import replay_buffer
-import self_play
-import shared_storage
-import trainer
-import cross_play
+from model import diagnose_model, models, replay_buffer, self_play, shared_storage, trainer, cross_play
 
 
 class MuZero:

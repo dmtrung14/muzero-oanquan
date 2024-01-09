@@ -1,0 +1,19 @@
+{
+  "name": "muzero-oanquan",
+  "version": "1.0.0",
+  "description": "![supported platforms](https://img.shields.io/badge/platform-Linux%20%7C%20Mac%20%7C%20Windows%20(soon)-929292)\r ![supported python versions](https://img.shields.io/badge/python-%3E%3D%203.6-306998)\r ![dependencies status](https://img.shields.io/badge/dependencies-up%20to%20date-brightgreen)\r [![style black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)\r ![license MIT](https://img.shields.io/badge/licence-MIT-green)\r [![discord badge](https://img.shields.io/badge/discord-join-6E60EF)](https://discord.gg/GB2vwsF)",
+  "main": "server.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "mongoose": "^8.0.3"
+  }
+}
