@@ -9,6 +9,10 @@ console.log(submitButton)
 
 submitButton.addEventListener("click", () => {
     console.log("button clicked")
+
+    // redirect to leaderboard page
+    window.location.href = "/submitted.html";
+
     const file = submittedModel.files[0];
     // Use FormData to send the file to the server
     const formData = {
